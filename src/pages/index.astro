@@ -1,0 +1,67 @@
+---
+import App from '../components/App';
+---
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
+  <title>shuanq.top — 集体栓Q</title>
+  <meta name="description" content="已有万人在此栓Q，说说你的栓Q瞬间" />
+  <meta name="theme-color" content="#08080e" />
+  <style is:global>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --bg: #08080e;
+      --surface: #12121e;
+      --accent: #f5e642;
+      --accent2: #42f5a7;
+      --accent3: #f54275;
+      --text: #e8e8f0;
+      --text-dim: #5a5a70;
+      --input-bg: #1a1a2e;
+    }
+
+    html, body {
+      height: 100%;
+      overflow: hidden;
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'PingFang SC', 'Microsoft YaHei', 'Noto Sans SC', sans-serif;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background:
+        radial-gradient(ellipse at 20% 50%, rgba(245,230,66,0.03) 0%, transparent 50%),
+        radial-gradient(ellipse at 80% 20%, rgba(66,245,167,0.02) 0%, transparent 50%),
+        radial-gradient(ellipse at 50% 80%, rgba(245,66,117,0.02) 0%, transparent 40%);
+      animation: breathe 8s ease-in-out infinite;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    @keyframes breathe {
+      0%, 100% { opacity: 0.6; }
+      50% { opacity: 1; }
+    }
+
+    body::after {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.015'/%3E%3C/svg%3E");
+      pointer-events: none;
+      z-index: 0;
+    }
+  </style>
+</head>
+<body>
+  <div id="app" style="height:100%">
+    <App client:only="react" />
+  </div>
+</body>
+</html>

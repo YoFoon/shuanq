@@ -1,0 +1,47 @@
+.expand-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(8,8,14,0.9);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 50;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s;
+  padding: 20px;
+}
+
+.expand-overlay.show {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.expand-card {
+  background: var(--surface);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 20px;
+  padding: 32px;
+  max-width: 340px;
+  width: 100%;
+  text-align: center;
+  transform: scale(0.9);
+  transition: transform 0.3s;
+}
+
+.expand-overlay.show .expand-card {
+  transform: scale(1);
+}
+
+.expand-card .quote-text {
+  font-size: 20px;
+  line-height: 1.6;
+  margin-bottom: 16px;
+}
+
+.expand-card .shuanq-big {
+  font-size: 32px;
+  font-weight: 900;
+  color: var(--accent);
+  text-shadow: 0 0 20px rgba(245,230,66,0.4);
+}

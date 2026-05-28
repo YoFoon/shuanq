@@ -1,0 +1,796 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>shuanq.top — 集体栓Q</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+:root {
+  --bg: #08080e;
+  --surface: #12121e;
+  --accent: #f5e642;
+  --accent2: #42f5a7;
+  --accent3: #f54275;
+  --text: #e8e8f0;
+  --text-dim: #5a5a70;
+  --input-bg: #1a1a2e;
+}
+
+html, body {
+  height: 100%;
+  overflow: hidden;
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'PingFang SC', 'Microsoft YaHei', 'Noto Sans SC', sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background: 
+    radial-gradient(ellipse at 20% 50%, rgba(245,230,66,0.03) 0%, transparent 50%),
+    radial-gradient(ellipse at 80% 20%, rgba(66,245,167,0.02) 0%, transparent 50%),
+    radial-gradient(ellipse at 50% 80%, rgba(245,66,117,0.02) 0%, transparent 40%);
+  animation: breathe 8s ease-in-out infinite;
+  pointer-events: none;
+  z-index: 0;
+}
+
+@keyframes breathe {
+  0%, 100% { opacity: 0.6; }
+  50% { opacity: 1; }
+}
+
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.015'/%3E%3C/svg%3E");
+  pointer-events: none;
+  z-index: 0;
+}
+
+#app {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  position: relative;
+  z-index: 1;
+}
+
+.header {
+  position: relative;
+  z-index: 10;
+  padding: 28px 20px 20px;
+  text-align: center;
+  background: linear-gradient(180deg, var(--bg) 50%, transparent);
+}
+
+.wordmark {
+  font-size: 13px;
+  letter-spacing: 6px;
+  text-transform: uppercase;
+  color: var(--accent);
+  font-weight: 700;
+  margin-bottom: 16px;
+  text-shadow: 0 0 20px rgba(245,230,66,0.3);
+  position: relative;
+  display: inline-block;
+}
+
+.wordmark::after {
+  content: '';
+  position: absolute;
+  bottom: -4px;
+  left: 20%;
+  right: 20%;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--accent), transparent);
+  opacity: 0.4;
+}
+
+.counter-wrap {
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.counter-label {
+  font-size: 14px;
+  color: var(--text-dim);
+}
+
+.counter-number {
+  font-size: 52px;
+  font-weight: 900;
+  color: var(--accent);
+  font-variant-numeric: tabular-nums;
+  text-shadow: 
+    0 0 30px rgba(245,230,66,0.4),
+    0 0 60px rgba(245,230,66,0.1);
+  position: relative;
+}
+
+.counter-number.glitch {
+  animation: glitch 0.3s ease;
+}
+
+@keyframes glitch {
+  0% { transform: translate(0); }
+  20% { transform: translate(-2px, 1px); filter: hue-rotate(90deg); }
+  40% { transform: translate(2px, -1px); }
+  60% { transform: translate(-1px, -1px); filter: hue-rotate(0deg); }
+  80% { transform: translate(1px, 1px); }
+  100% { transform: translate(0); }
+}
+
+.counter-unit {
+  font-size: 16px;
+  color: var(--text);
+  font-weight: 600;
+}
+
+.mood-bar {
+  margin-top: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-size: 12px;
+  color: var(--text-dim);
+}
+
+.mood-level {
+  display: inline-block;
+  padding: 2px 10px;
+  border-radius: 10px;
+  font-weight: 600;
+  font-size: 11px;
+  background: rgba(245,66,117,0.15);
+  color: var(--accent3);
+  border: 1px solid rgba(245,66,117,0.2);
+}
+
+.danmaku-area {
+  flex: 1;
+  position: relative;
+  overflow: hidden;
+}
+
+.danmaku-fade-top,
+.danmaku-fade-bottom {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 80px;
+  z-index: 5;
+  pointer-events: none;
+}
+
+.danmaku-fade-top {
+  top: 0;
+  background: linear-gradient(180deg, var(--bg), transparent);
+}
+
+.danmaku-fade-bottom {
+  bottom: 0;
+  background: linear-gradient(0deg, var(--bg), transparent);
+}
+
+.danmaku-row {
+  position: absolute;
+  white-space: nowrap;
+  display: flex;
+  gap: 24px;
+  animation: scroll-left linear infinite;
+  will-change: transform;
+}
+
+.danmaku-row.reverse {
+  animation-name: scroll-right;
+}
+
+@keyframes scroll-left {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+@keyframes scroll-right {
+  0% { transform: translateX(-50%); }
+  100% { transform: translateX(0); }
+}
+
+.danmaku-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  border-radius: 20px;
+  background: var(--surface);
+  border: 1px solid rgba(255,255,255,0.04);
+  font-size: 14px;
+  color: var(--text);
+  flex-shrink: 0;
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+  opacity: 0.85;
+}
+
+.danmaku-item:active {
+  transform: scale(1.05);
+}
+
+.danmaku-item.size-lg {
+  font-size: 16px;
+  padding: 10px 20px;
+  opacity: 1;
+  font-weight: 500;
+}
+
+.danmaku-item.size-sm {
+  font-size: 12px;
+  padding: 6px 12px;
+  opacity: 0.6;
+}
+
+.danmaku-item .shuanq-tag {
+  color: var(--accent);
+  font-weight: 700;
+  font-size: 13px;
+}
+
+.danmaku-item.size-lg .shuanq-tag {
+  font-size: 15px;
+}
+
+.danmaku-item.size-sm .shuanq-tag {
+  font-size: 11px;
+}
+
+.danmaku-item.highlight {
+  background: rgba(245,230,66,0.08);
+  border-color: rgba(245,230,66,0.15);
+  opacity: 1;
+}
+
+.danmaku-item.green {
+  background: rgba(66,245,167,0.06);
+  border-color: rgba(66,245,167,0.12);
+}
+
+.danmaku-item.green .shuanq-tag {
+  color: var(--accent2);
+}
+
+.danmaku-item.pink {
+  background: rgba(245,66,117,0.06);
+  border-color: rgba(245,66,117,0.12);
+}
+
+.danmaku-item.pink .shuanq-tag {
+  color: var(--accent3);
+}
+
+.danmaku-item.glow .shuanq-tag {
+  animation: tag-glow 2s ease-in-out infinite;
+}
+
+@keyframes tag-glow {
+  0%, 100% { text-shadow: none; }
+  50% { text-shadow: 0 0 8px currentColor; }
+}
+
+.input-bar {
+  position: relative;
+  z-index: 10;
+  padding: 12px 16px;
+  padding-bottom: max(12px, env(safe-area-inset-bottom));
+  background: var(--surface);
+  border-top: 1px solid rgba(255,255,255,0.06);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.input-field {
+  flex: 1;
+  height: 44px;
+  padding: 0 16px;
+  border-radius: 22px;
+  border: 1px solid rgba(255,255,255,0.08);
+  background: var(--input-bg);
+  color: var(--text);
+  font-size: 15px;
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.input-field::placeholder {
+  color: var(--text-dim);
+}
+
+.input-field:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 20px rgba(245,230,66,0.1);
+}
+
+.submit-btn {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  border: none;
+  background: var(--accent);
+  color: var(--bg);
+  font-size: 16px;
+  font-weight: 900;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.15s, box-shadow 0.15s;
+  flex-shrink: 0;
+  box-shadow: 0 0 20px rgba(245,230,66,0.2);
+}
+
+.submit-btn:active {
+  transform: scale(0.88);
+}
+
+.submit-btn:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+.toast {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) scale(0.8);
+  background: rgba(12,12,18,0.95);
+  border: 1px solid var(--accent);
+  border-radius: 16px;
+  padding: 24px 36px;
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--accent);
+  z-index: 100;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s, transform 0.3s;
+  text-align: center;
+  box-shadow: 0 0 60px rgba(245,230,66,0.2);
+}
+
+.toast.show {
+  opacity: 1;
+  transform: translate(-50%, -50%) scale(1);
+}
+
+.watermark {
+  position: fixed;
+  bottom: 80px;
+  right: 16px;
+  font-size: 10px;
+  color: rgba(255,255,255,0.1);
+  letter-spacing: 1px;
+  z-index: 6;
+  writing-mode: vertical-rl;
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-4px) rotate(-0.5deg); }
+  50% { transform: translateX(4px) rotate(0.5deg); }
+  75% { transform: translateX(-2px) rotate(-0.3deg); }
+}
+
+.shake {
+  animation: shake 0.4s ease;
+}
+
+.confetti {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 99;
+  overflow: hidden;
+}
+
+.confetti-piece {
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  border-radius: 2px;
+  animation: confetti-fall 1.5s ease-out forwards;
+  opacity: 0;
+}
+
+@keyframes confetti-fall {
+  0% { transform: translateY(-20px) rotate(0deg); opacity: 1; }
+  100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
+}
+
+.expand-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(8,8,14,0.9);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 50;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s;
+  padding: 20px;
+}
+
+.expand-overlay.show {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.expand-card {
+  background: var(--surface);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 20px;
+  padding: 32px;
+  max-width: 340px;
+  width: 100%;
+  text-align: center;
+  transform: scale(0.9);
+  transition: transform 0.3s;
+}
+
+.expand-overlay.show .expand-card {
+  transform: scale(1);
+}
+
+.expand-card .quote-text {
+  font-size: 20px;
+  line-height: 1.6;
+  margin-bottom: 16px;
+}
+
+.expand-card .shuanq-big {
+  font-size: 32px;
+  font-weight: 900;
+  color: var(--accent);
+  text-shadow: 0 0 20px rgba(245,230,66,0.4);
+}
+</style>
+</head>
+<body>
+
+<div id="app"></div>
+
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+
+<script>
+const TWEAK_DEFAULTS = /*EDITMODE-BEGIN*/{
+  "accentColor": "#f5e642",
+  "scrollSpeed": 1,
+  "danmakuRows": 9,
+  "showMoodBar": true
+}/*EDITMODE-END*/;
+</script>
+
+<script type="text/babel">
+
+const QUOTES = [
+  `周五下午六点收到邮件："这个周末能交吗？"`,
+  `需求改了第9版，产品说"回到第2版吧"`,
+  `刚写完的代码跑通了，leader说技术方案要换`,
+  `面试官说"回去等通知"，等了三个月`,
+  `加班到十一点，第二天发现提交错分支了`,
+  `团建选在周六，还说是福利`,
+  `线上出bug了，查了两小时发现是自己埋的`,
+  `年终总结写了三千字，涨薪五百`,
+  `同事离职了，他的活全给了我`,
+  `老板说"你把这个小需求顺手做了" 已经顺了三天了`,
+  `选了一门"给分高"的课，挂了`,
+  `论文查重 30%，改完之后 35%`,
+  `考研出分的那一刻`,
+  `通宵复习的内容一分没考`,
+  `室友打呼噜，耳塞都压不住`,
+  `导师说"再改改"，第十七次了`,
+  `毕业答辩老师问的问题我论文里都写了`,
+  `图书馆占到座了，发现没带电脑`,
+  `六级考了五次，每次差两分`,
+  `实习三个月，转正名额没了`,
+  `外卖到了，发现没点米饭`,
+  `下楼取快递忘带钥匙了`,
+  `刚洗完车就下雨了`,
+  `抢到演唱会门票了，请不到假`,
+  `排队两小时的网红店，味道一般`,
+  `新买的白鞋第一天就踩泥了`,
+  `充了年会员第二天就打折了`,
+  `减肥第一天就碰上朋友请客`,
+  `空调坏了，师傅说最早下周来`,
+  `公交车刚到站我还差五米`,
+  `给喜欢的人发消息，对方回了个"哈哈"`,
+  `精心准备的约会，对方带了朋友来`,
+  `刚脱单就异地了`,
+  `前任过得比我好`,
+  `朋友圈发了九宫格，他点赞了别人没点我`,
+  `相亲对象上来就问我工资`,
+  `鼓起勇气表白，对方说"你人很好"`,
+  `游戏更新了十个G，打开发现还要再更新`,
+  `写了一下午的文档没保存，电脑蓝屏了`,
+  `新手机到了，旧手机的数据迁移了一晚上`,
+  `WiFi信号满格但是网页打不开`,
+  `抢红包手速第一，抢到了0.01`,
+  `视频面试忘记关美颜了`,
+  `群里发错消息，撤回超过两分钟了`,
+  `高铁晚点两小时，改签的那趟也晚点了`,
+  `导航说五分钟到，堵了四十分钟`,
+  `到机场了发现身份证在家`,
+  `打车打了二十分钟，司机还在对面马路`,
+  `旅游景点全是人头`,
+  `酒店定错日期了，不能退`,
+  `注册甲骨文有点玄学`,
+  `验证码刷了八次都看不清`,
+  `中奖了，奖品是优惠券`,
+  `体检报告出来了 不敢打开`,
+  `今天出门没看黄历`,
+  `水逆还没结束吗`,
+  `许愿转发的锦鲤一条都没用`,
+  `算命的说我明年会好，去年也是这么说的`,
+];
+
+function shuffle(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+const MOODS = ['微栓', '小栓', '中栓', '大栓', '超级栓', '栓麻了'];
+
+function Counter({ count }) {
+  const [display, setDisplay] = React.useState(count);
+  const [glitching, setGlitching] = React.useState(false);
+  const [moodIdx, setMoodIdx] = React.useState(3);
+
+  React.useEffect(() => {
+    const interval = setInterval(() => {
+      const inc = Math.floor(Math.random() * 5) + 1;
+      setDisplay(prev => prev + inc);
+      setGlitching(true);
+      setTimeout(() => setGlitching(false), 300);
+      if (Math.random() > 0.7) {
+        setMoodIdx(Math.min(MOODS.length - 1, Math.floor(Math.random() * MOODS.length)));
+      }
+    }, 2500 + Math.random() * 2000);
+    return () => clearInterval(interval);
+  }, []);
+
+  return (
+    <div className="header">
+      <div className="wordmark">SHUANQ.TOP</div>
+      <div className="counter-wrap">
+        <span className="counter-label">已有</span>
+        <span className={`counter-number ${glitching ? 'glitch' : ''}`}>
+          {display.toLocaleString()}
+        </span>
+        <span className="counter-unit">人栓Q</span>
+      </div>
+      {TWEAK_DEFAULTS.showMoodBar && (
+        <div className="mood-bar">
+          <span>今日栓Q指数</span>
+          <span className="mood-level">{MOODS[moodIdx]}</span>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function DanmakuRow({ quotes, rowIndex, speed }) {
+  const isReverse = rowIndex % 2 === 1;
+  const baseDuration = 35 + rowIndex * 4;
+  const duration = baseDuration / speed;
+
+  const doubled = [...quotes, ...quotes];
+
+  const getItemClass = (i) => {
+    const classes = ['danmaku-item'];
+    const sizeRand = (rowIndex * 7 + i) % 10;
+    if (sizeRand < 2) classes.push('size-lg');
+    else if (sizeRand > 7) classes.push('size-sm');
+
+    const colorRand = (rowIndex * 3 + i) % 12;
+    if (colorRand === 0) classes.push('highlight');
+    else if (colorRand === 3) classes.push('green');
+    else if (colorRand === 7) classes.push('pink');
+
+    if ((rowIndex + i) % 9 === 0) classes.push('glow');
+
+    return classes.join(' ');
+  };
+
+  return (
+    <div
+      className={`danmaku-row ${isReverse ? 'reverse' : ''}`}
+      style={{
+        top: `${rowIndex * 52}px`,
+        animationDuration: `${duration}s`,
+      }}
+    >
+      {doubled.map((q, i) => (
+        <div key={`${rowIndex}-${i}`} className={getItemClass(i)} data-quote={q}>
+          <span>{q}</span>
+          <span className="shuanq-tag">栓Q</span>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function DanmakuArea({ onQuoteClick }) {
+  const rows = React.useMemo(() => {
+    const numRows = TWEAK_DEFAULTS.danmakuRows;
+    const result = [];
+    const shuffled = shuffle(QUOTES);
+    const perRow = Math.ceil(shuffled.length / numRows);
+    for (let i = 0; i < numRows; i++) {
+      const start = (i * 7) % shuffled.length;
+      const rowQuotes = [];
+      for (let j = 0; j < perRow; j++) {
+        rowQuotes.push(shuffled[(start + j) % shuffled.length]);
+      }
+      result.push(rowQuotes);
+    }
+    return result;
+  }, []);
+
+  const handleClick = (e) => {
+    const item = e.target.closest('.danmaku-item');
+    if (item) {
+      onQuoteClick(item.dataset.quote);
+    }
+  };
+
+  return (
+    <div className="danmaku-area" onClick={handleClick}>
+      <div className="danmaku-fade-top" />
+      <div className="danmaku-fade-bottom" />
+      {rows.map((quotes, i) => (
+        <DanmakuRow key={i} quotes={quotes} rowIndex={i} speed={TWEAK_DEFAULTS.scrollSpeed} />
+      ))}
+    </div>
+  );
+}
+
+function Confetti({ active }) {
+  if (!active) return null;
+  const colors = ['#f5e642', '#42f5a7', '#f54275', '#42a5f5', '#f5a742'];
+  const pieces = Array.from({ length: 30 }, (_, i) => ({
+    id: i,
+    left: Math.random() * 100,
+    color: colors[i % colors.length],
+    delay: Math.random() * 0.5,
+    size: 4 + Math.random() * 8,
+  }));
+
+  return (
+    <div className="confetti">
+      {pieces.map(p => (
+        <div
+          key={p.id}
+          className="confetti-piece"
+          style={{
+            left: `${p.left}%`,
+            backgroundColor: p.color,
+            animationDelay: `${p.delay}s`,
+            width: `${p.size}px`,
+            height: `${p.size}px`,
+            opacity: 1,
+          }}
+        />
+      ))}
+    </div>
+  );
+}
+
+function ExpandOverlay({ quote, onClose }) {
+  return (
+    <div className={`expand-overlay ${quote ? 'show' : ''}`} onClick={onClose}>
+      <div className="expand-card" onClick={e => e.stopPropagation()}>
+        <div className="quote-text">{quote}</div>
+        <div className="shuanq-big">栓Q</div>
+      </div>
+    </div>
+  );
+}
+
+function InputBar({ onSubmit }) {
+  const [value, setValue] = React.useState('');
+  const [submitting, setSubmitting] = React.useState(false);
+
+  const handleSubmit = () => {
+    if (!value.trim() || submitting) return;
+    setSubmitting(true);
+    onSubmit(value.trim());
+    setValue('');
+    setTimeout(() => setSubmitting(false), 1500);
+  };
+
+  return (
+    <div className="input-bar">
+      <input
+        className="input-field"
+        placeholder="说说你的栓Q瞬间..."
+        value={value}
+        onChange={e => setValue(e.target.value)}
+        onKeyDown={e => e.key === 'Enter' && handleSubmit()}
+        maxLength={80}
+      />
+      <button
+        className="submit-btn"
+        onClick={handleSubmit}
+        disabled={!value.trim() || submitting}
+        aria-label="提交"
+      >
+        栓
+      </button>
+    </div>
+  );
+}
+
+function App() {
+  const [toastVisible, setToastVisible] = React.useState(false);
+  const [confettiActive, setConfettiActive] = React.useState(false);
+  const [shaking, setShaking] = React.useState(false);
+  const [expandedQuote, setExpandedQuote] = React.useState(null);
+
+  const handleSubmit = () => {
+    setShaking(true);
+    setConfettiActive(true);
+    setToastVisible(true);
+    setTimeout(() => setShaking(false), 400);
+    setTimeout(() => setToastVisible(false), 2000);
+    setTimeout(() => setConfettiActive(false), 2000);
+  };
+
+  return (
+    <div className={shaking ? 'shake' : ''} style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
+      <Counter count={12847} />
+      <DanmakuArea onQuoteClick={setExpandedQuote} />
+      <InputBar onSubmit={handleSubmit} />
+      <div className={`toast ${toastVisible ? 'show' : ''}`}>
+        栓Q成功！已加入吐槽墙
+      </div>
+      <Confetti active={confettiActive} />
+      <ExpandOverlay quote={expandedQuote} onClose={() => setExpandedQuote(null)} />
+      <div className="watermark">shuanq.top</div>
+    </div>
+  );
+}
+
+const root = ReactDOM.createRoot(document.getElementById('app'));
+root.render(<App />);
+
+(function() {
+  window.addEventListener('message', (e) => {
+    if (e.data?.type === '__activate_edit_mode') {}
+    if (e.data?.type === '__deactivate_edit_mode') {}
+  });
+  window.parent.postMessage({ type: '__edit_mode_available' }, '*');
+})();
+
+</script>
+</body>
+</html>

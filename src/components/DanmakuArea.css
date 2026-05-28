@@ -1,0 +1,128 @@
+.danmaku-area {
+  flex: 1;
+  position: relative;
+  overflow: hidden;
+}
+
+.danmaku-fade-top,
+.danmaku-fade-bottom {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 80px;
+  z-index: 5;
+  pointer-events: none;
+}
+
+.danmaku-fade-top {
+  top: 0;
+  background: linear-gradient(180deg, var(--bg), transparent);
+}
+
+.danmaku-fade-bottom {
+  bottom: 0;
+  background: linear-gradient(0deg, var(--bg), transparent);
+}
+
+.danmaku-row {
+  position: absolute;
+  white-space: nowrap;
+  display: flex;
+  gap: 24px;
+  animation: scroll-left linear infinite;
+  will-change: transform;
+}
+
+.danmaku-row.reverse {
+  animation-name: scroll-right;
+}
+
+@keyframes scroll-left {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+@keyframes scroll-right {
+  0% { transform: translateX(-50%); }
+  100% { transform: translateX(0); }
+}
+
+.danmaku-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  border-radius: 20px;
+  background: var(--surface);
+  border: 1px solid rgba(255,255,255,0.04);
+  font-size: 14px;
+  color: var(--text);
+  flex-shrink: 0;
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+  opacity: 0.85;
+}
+
+.danmaku-item:active {
+  transform: scale(1.05);
+}
+
+.danmaku-item.size-lg {
+  font-size: 16px;
+  padding: 10px 20px;
+  opacity: 1;
+  font-weight: 500;
+}
+
+.danmaku-item.size-sm {
+  font-size: 12px;
+  padding: 6px 12px;
+  opacity: 0.6;
+}
+
+.danmaku-item .shuanq-tag {
+  color: var(--accent);
+  font-weight: 700;
+  font-size: 13px;
+}
+
+.danmaku-item.size-lg .shuanq-tag {
+  font-size: 15px;
+}
+
+.danmaku-item.size-sm .shuanq-tag {
+  font-size: 11px;
+}
+
+.danmaku-item.highlight {
+  background: rgba(245,230,66,0.08);
+  border-color: rgba(245,230,66,0.15);
+  opacity: 1;
+}
+
+.danmaku-item.green {
+  background: rgba(66,245,167,0.06);
+  border-color: rgba(66,245,167,0.12);
+}
+
+.danmaku-item.green .shuanq-tag {
+  color: var(--accent2);
+}
+
+.danmaku-item.pink {
+  background: rgba(245,66,117,0.06);
+  border-color: rgba(245,66,117,0.12);
+}
+
+.danmaku-item.pink .shuanq-tag {
+  color: var(--accent3);
+}
+
+.danmaku-item.glow .shuanq-tag {
+  animation: tag-glow 2s ease-in-out infinite;
+}
+
+@keyframes tag-glow {
+  0%, 100% { text-shadow: none; }
+  50% { text-shadow: 0 0 8px currentColor; }
+}
